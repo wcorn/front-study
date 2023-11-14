@@ -1,5 +1,8 @@
 import { Component } from "react";
 import logo from "./logo.svg";
+
+import SearchBox from "./components/search-box/search-box.component";
+import CardList from "./components/card-list/card-list.component";
 import "./App.css";
 
 class App extends Component {
@@ -8,36 +11,47 @@ class App extends Component {
     super();
     this.state = {
       monsters: [],
+      searchField: ''
     };
-    console.log('constructor');
   }
 
   componentDidMount() {
-    console.log('componentDidMount');
     //마운트가 되는 순간 코드를 실행
     //fetch는 비동기
     //json을 받아오는 순간 다시 rendoring
-    fetch('https://jsonplaceholder.typicode.com/users')
-    .then((response) => response.json())
-    .then((users) =>this.setState(
-    ()=>{
-      return {monsters:users};
-    },
-    ()=>{
-      console.log(this.state);
-    }))
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((response) => response.json())
+      .then((users) =>
+        this.setState(
+          () => {
+            return { monsters: users };
+          },
+        )
+      );
   }
-
-
+onSearchChange = (event) => {
+  const searchField = event.target.value.toLocaleLowerCase();
+  this.setState(() => {
+    return { searchField };
+  });
+};
   render() {
-    console.log('rendor');
+    const {monsters, searchField } =this.state;
+    const {onSearchChange} = this;
+    const filteredMonsters = monsters.filter((monster) => {
+      return monster.name.toLocaleLowerCase().includes(searchField);
+    });
     //구성 요소의 UI를 결정
-    //dom에 mount가 돈다.
+    //dom에 mount가 돈다.   
     return (
       <div className="App">
-        {this.state.monsters.map((monster) => {
-          return <div key={monster.id}><h1>{monster.name}</h1></div>;
-        })}
+      <h1 className="app-title">Monster Rolodex</h1>
+        <SearchBox 
+        className ='monster-search-box'
+        onChangeHandler={onSearchChange} 
+        placeholder ={'search monsters'}
+        />
+        <CardList monsters={filteredMonsters}  />
       </div>
     );
   }
